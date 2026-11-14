@@ -61,6 +61,20 @@ The original runs used short shell scripts for image verification, cloud-init se
 
 [Debian cloud images](https://cloud.debian.org/images/cloud/) · [NoCloud configuration](https://docs.cloud-init.io/en/latest/reference/datasources/nocloud.html) · [QEMU disk image utility](https://www.qemu.org/docs/master/tools/qemu-img.html)
 
+## 4. Show and control the same guest desktop
+
+Start the guest from a writable overlay and install a Debian desktop such as Xfce. Give the guest a virtual display and start QEMU with a VNC listener bound to host loopback, for example `-vnc 127.0.0.1:5`. Display 5 uses TCP port 5905. A viewer in the signed-in CachyOS desktop session can open `127.0.0.1:5` (or enter port 5905 explicitly). The viewer window shows the Debian desktop on the physical monitor.
+
+For remote control, forward that same VNC port over the existing SSH connection. For example, with the lab identity and host key configured under an SSH alias named `tablet-lab-host`:
+
+```bash
+ssh -N -L 127.0.0.1:5905:127.0.0.1:5905 tablet-lab-host
+```
+
+Open the remote viewer in shared mode so it can connect alongside the local viewer. Both viewers show the same guest desktop, including any pointer or keyboard input sent remotely. Launch the local viewer from the host user's graphical session. Some desktop sessions require that user to open the viewer or approve access. For screenshots or scripted interaction, QEMU can also expose a monitor on a private Unix socket to capture the guest framebuffer and send input.
+
+[Debian Xfce desktop package](https://packages.debian.org/trixie/task-xfce-desktop) · [QEMU display options](https://www.qemu.org/docs/master/system/invocation.html) · [QEMU monitor commands](https://www.qemu.org/docs/master/system/monitor.html)
+
 ## Tailscale for a future setup
 
 Tailscale could simplify reaching the host from other networks. Enroll both Windows and CachyOS on the same private Tailscale network and authorize access from the Windows device to the lab host. That would replace dependence on the current LAN addresses and the UFW rule tied to the Windows LAN IP.
