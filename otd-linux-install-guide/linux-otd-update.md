@@ -1,0 +1,17 @@
+# Update OpenTabletDriver on Linux
+
+GitHub downloads are updated manually. Check the official releases page for a new DEB, RPM, or tarball. Before replacing one of those builds, back up your settings, quit the GUI, and run `systemctl --user stop opentabletdriver.service` from your regular desktop account. AUR and CachyOS repository packages update through normal system updates. [Official OpenTabletDriver releases](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/latest)
+
+| Current install | How to update |
+| --- | --- |
+| Debian DEB | Download the new official x86-64 DEB into your current directory and set `deb` to its actual filename. Check the new release's runtime requirements, then run `sudo apt install "./$deb"`. |
+| Fedora RPM | Download the new official x86-64 RPM into your current directory and set `rpm_file` to its actual filename. Run `sudo dnf install "./$rpm_file"`. |
+| EndeavourOS AUR package | Run `yay -Syu` in a regular user's terminal. Confirm that the transaction includes OpenTabletDriver if an AUR update is available. |
+| CachyOS repository package | Run `sudo pacman -Syu`. Pacman updates OpenTabletDriver when a newer build is available from your configured repositories. |
+| Manual GitHub tarball | Follow the [tarball removal steps](linux-otd-uninstall.md#official-github-tarball-installs) for the old release, then [install the new archive](linux-otd-advanced.md#official-github-tarball-on-endeavouros-or-cachyos). Use the filenames, checksum, layout, and dependencies for the new release. Keep your user settings if you want to reuse them. |
+
+After installing the new version, run the [boot-image rebuild for your setup](linux-otd-install.md#preventing-built-in-linux-drivers-from-interfering-with-otd) and restart. If you removed a tarball before installing its replacement, rebuild once after the new archive and its configuration are in place. After signing in, check `otd --version` and `systemctl --user is-active opentabletdriver.service`, then open the GUI. [Official releases](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/latest) · [Pacman manual](https://man.archlinux.org/man/pacman.8)
+
+If you need to roll back, keep a copy of the previous package or archive. Install an older DEB with `sudo apt install --allow-downgrades "./$old_deb"` or an older RPM with `sudo dnf downgrade "./$old_rpm"`, setting the variable to the downloaded filename. For an AUR or CachyOS package, use `sudo pacman -U` with the saved older package if its dependencies are still compatible. For a tarball, remove the current archive's files and reinstall the previous archive. Restore your pre-update settings if the older version cannot read the newer settings, then rebuild the boot image and restart. [APT manual](https://manpages.debian.org/trixie/apt/apt.8.en.html) · [DNF5 downgrade manual](https://dnf5.readthedocs.io/en/stable/commands/downgrade.8.html) · [Pacman manual](https://man.archlinux.org/man/pacman.8)
+
+The lab verified both the in-place upgrade from `v0.6.8` to `v0.6.8.1` and the rollback to `v0.6.8` using the official DEB on Debian 13.7 and the official RPM on Fedora 45. The package transactions left the settings file byte-for-byte unchanged. The daemon started automatically after reboot and Xfce login and loaded the global setting changed for each test. Other version pairs and the AUR, CachyOS repository, and tarball update and rollback paths remain unverified. See [VM upgrade and rollback results](linux-otd-install-verification.md#vm-upgrade-and-rollback-results).

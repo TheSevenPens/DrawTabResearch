@@ -44,7 +44,7 @@ dotnet --list-sdks
 
 Use this route in place of the AUR or CachyOS package when you want an exact upstream release or the current GitHub release. The commands below use the tested `v0.6.8.1` x86-64 archive. For a different release, check its runtime requirements and archive layout before applying these steps. If switching from the Pacman-managed OpenTabletDriver package, [stop its user service and remove the package](linux-otd-uninstall.md) first. Back up any settings you want to keep. [Official v0.6.8.1 release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8.1)
 
-On an older EndeavourOS Plasma installation, see [the Plasma X11 removal prompt](linux-otd-install.md#endeavouros) before running the dependency command.
+On an older EndeavourOS Plasma installation, see [the Plasma X11 removal prompt](linux-otd-install-endeavouros.md) before running the dependency command.
 
 ```bash
 sudo pacman -Syu --needed curl dotnet-runtime-10.0 gtk3 libevdev libx11 libxrandr
@@ -64,6 +64,6 @@ sudo install -Dm644 /usr/local/lib/modules-load.d/opentabletdriver.conf /etc/mod
 /usr/local/bin/otd --version
 ```
 
-Follow [Rebuild the boot image and restart](linux-otd-install.md#rebuild-the-boot-image-and-restart) for your EndeavourOS or CachyOS setup. The lab also extracted the official tarball on an EndeavourOS systemd-boot copy, rebuilt the boot image, rebooted, checked the CLI version, and enabled the user service. The systemd-boot run did not include a GUI check.
+Follow the [boot-image rebuild and restart instructions](linux-otd-install.md#preventing-built-in-linux-drivers-from-interfering-with-otd) for your EndeavourOS or CachyOS setup. The lab also extracted the official tarball on an EndeavourOS systemd-boot copy, rebuilt the boot image, rebooted, checked the CLI version, and enabled the user service. The systemd-boot run did not include a GUI check.
 
-After signing in, follow [Start the driver and check tablet detection](linux-otd-install.md#3-start-the-driver-and-check-tablet-detection). If you previously enabled the Pacman package's service, run `systemctl --user daemon-reload` and `systemctl --user reenable opentabletdriver.service` first to refresh its login symlink. Check the unit path with `systemctl --user show opentabletdriver.service -p FragmentPath`. The tarball's unit is under `/usr/local/lib/systemd/user/`.
+After signing in, follow [Start the OTD daemon and check tablet detection](linux-otd-install.md#3-start-the-otd-daemon-and-check-tablet-detection). If you previously enabled the Pacman package's service, run `systemctl --user daemon-reload` and `systemctl --user reenable opentabletdriver.service` first to refresh its login symlink. Check the unit path with `systemctl --user show opentabletdriver.service -p FragmentPath`. The tarball's unit is under `/usr/local/lib/systemd/user/`.

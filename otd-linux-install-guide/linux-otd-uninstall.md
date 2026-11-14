@@ -10,7 +10,7 @@ Quit the GUI. From the account that uses OpenTabletDriver, stop its daemon and t
 systemctl --user disable --now opentabletdriver.service
 ```
 
-If you created the [Xfce login entry](linux-otd-install.md#start-automatically-at-desktop-login), remove it from the same account before uninstalling:
+If you created the [Xfce login entry](linux-otd-autostart.md#xfce-login-entry), remove it from the same account before uninstalling:
 
 ```bash
 rm -f -- ~/.config/autostart/opentabletdriver-xfce.desktop
@@ -62,7 +62,7 @@ sudo rmdir --ignore-fail-on-non-empty -- \
 
 ## Verify removal
 
-Follow [Rebuild the boot image and restart](linux-otd-install.md#rebuild-the-boot-image-and-restart) to clear any OpenTabletDriver kernel-module overrides from the boot image.
+Follow the [boot-image rebuild and restart instructions](linux-otd-install.md#preventing-built-in-linux-drivers-from-interfering-with-otd) to clear any OpenTabletDriver kernel-module overrides from the boot image.
 
 After restarting, `command -v otd otd-daemon otd-gui` should print no paths, and `systemctl --user status opentabletdriver.service` should report that the unit could not be found. If either check finds a copy, inspect the reported path for a second installation.
 
