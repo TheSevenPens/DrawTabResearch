@@ -132,7 +132,7 @@ pacman -Q opentabletdriver
 
 Run `yay` in an interactive terminal so it can prompt when it needs sudo. If your setup lacks `yay`, see [the official AUR installation options](https://opentabletdriver.net/Wiki/Install/Linux#arch). The AUR recipe builds from source using the .NET 10 SDK and declares the .NET 10 runtime. Both came from the configured package repositories in the test.
 
-Rebuild the boot image with the command for your bootloader, then run `sudo reboot`. For **GRUB with dracut**, use `sudo dracut-rebuild`. For **systemd-boot with dracut**, use `sudo reinstall-kernels`. The lab verified the full AUR install on GRUB and verified the rebuild and removal on systemd-boot with a preinstalled AUR package. [OpenTabletDriver EndeavourOS instructions](https://opentabletdriver.net/Wiki/Install/Linux#endeavouros) · [EndeavourOS dracut documentation](https://discovery.endeavouros.com/dracut/)
+Follow [Rebuild the boot image and restart](#rebuild-the-boot-image-and-restart). That section shows how to choose the EndeavourOS command for your bootloader. [OpenTabletDriver EndeavourOS instructions](https://opentabletdriver.net/Wiki/Install/Linux#endeavouros)
 
 ### CachyOS
 
@@ -161,7 +161,7 @@ systemctl --user status opentabletdriver.service --no-pager
 systemctl --user is-active graphical-session.target
 ```
 
-Look for **active (running)** in the service status. If the target check prints `inactive` on Xfce, follow [the Xfce login steps](#start-automatically-at-desktop-login) to make startup persistent.
+Look for **active (running)** in the service status. If the target check prints `inactive` on Xfce, follow [the Xfce login steps](#start-automatically-at-desktop-login) to make startup persistent. On other desktops with an inactive target, see the [upstream autostart guidance](https://opentabletdriver.net/Wiki/FAQ/Linux#autostart).
 
 Open **OpenTabletDriver** from the desktop app menu or run `otd-gui` in a terminal. Use a second terminal for diagnostics if you launched the GUI from the first one. The Linux GUI connects to the daemon running under your desktop account. Closing the GUI leaves the service running. [Upstream daemon guidance](https://opentabletdriver.net/Wiki/FAQ/General#gui-is-almost-always-the-driver)
 
@@ -229,7 +229,7 @@ After installing the new version, run the [boot-image rebuild for your setup](#r
 
 If you need to roll back, keep a copy of the previous package or archive. Install an older DEB with `sudo apt install --allow-downgrades "./$old_deb"` or an older RPM with `sudo dnf downgrade "./$old_rpm"`, setting the variable to the downloaded filename. For an AUR or CachyOS package, use `sudo pacman -U` with the saved older package if its dependencies are still compatible. For a tarball, remove the current archive's files and reinstall the previous archive. Restore your pre-update settings if the older version cannot read the newer settings, then rebuild the boot image and restart. [APT manual](https://manpages.debian.org/trixie/apt/apt.8.en.html) · [DNF5 downgrade manual](https://dnf5.readthedocs.io/en/stable/commands/downgrade.8.html) · [Pacman manual](https://man.archlinux.org/man/pacman.8)
 
-The lab verified both the in-place upgrade from `v0.6.8` to `v0.6.8.1` and the rollback to `v0.6.8` using the official DEB on Debian 13.7 and the official RPM on Fedora 45. The tested settings survived, and the daemon started automatically after reboot and Xfce login. Other version pairs and the AUR, CachyOS repository, and tarball update and rollback paths remain unverified. See [VM upgrade and rollback results](#vm-upgrade-and-rollback-results).
+The lab verified both the in-place upgrade from `v0.6.8` to `v0.6.8.1` and the rollback to `v0.6.8` using the official DEB on Debian 13.7 and the official RPM on Fedora 45. The package transactions left the settings file byte-for-byte unchanged. The daemon started automatically after reboot and Xfce login and loaded the global setting changed for each test. Other version pairs and the AUR, CachyOS repository, and tarball update and rollback paths remain unverified. See [VM upgrade and rollback results](#vm-upgrade-and-rollback-results).
 
 ## 5. Remove OpenTabletDriver
 
@@ -289,9 +289,19 @@ sudo rmdir --ignore-fail-on-non-empty -- \
   /usr/local/lib/opentabletdriver /usr/local/share/doc/opentabletdriver
 ```
 
-### Rebuild the boot image and restart
+### Verify removal
 
-Rebuilding the initramfs drops OpenTabletDriver's kernel-module overrides from the boot image after the corresponding files have been removed. Run the command for your setup and restart after it succeeds. [OpenTabletDriver Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux) · [EndeavourOS dracut guide](https://discovery.endeavouros.com/dracut/) · [CachyOS boot manager guide](https://wiki.cachyos.org/configuration/boot_manager_configuration/)
+Follow [Rebuild the boot image and restart](#rebuild-the-boot-image-and-restart) to clear any OpenTabletDriver kernel-module overrides from the boot image.
+
+After restarting, `command -v otd otd-daemon otd-gui` should print no paths, and `systemctl --user status opentabletdriver.service` should report that the unit could not be found. If either check finds a copy, inspect the reported path for a second installation.
+
+### Optional settings cleanup
+
+By default, Linux settings and plugins are in `~/.config/OpenTabletDriver`. Custom tablet definitions may also be in `~/.local/share/OpenTabletDriver/Configurations`. In your file manager, move these folders to a backup location or delete them if you want a fresh start. Repeat for other accounts as needed. If you set a custom application data path, check that location too. [OpenTabletDriver application data](https://opentabletdriver.net/Wiki/FAQ/General)
+
+## Rebuild the boot image and restart
+
+Rebuilding the initramfs synchronizes its module configuration with the installed system. Use the command for your setup, then run `sudo reboot` after the rebuild succeeds. [OpenTabletDriver Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux) · [EndeavourOS dracut guide](https://discovery.endeavouros.com/dracut/) · [CachyOS boot manager guide](https://wiki.cachyos.org/configuration/boot_manager_configuration/)
 
 | Setup | Rebuild command |
 | --- | --- |
@@ -301,11 +311,14 @@ Rebuilding the initramfs drops OpenTabletDriver's kernel-module overrides from t
 | EndeavourOS with systemd-boot and dracut | `sudo reinstall-kernels` |
 | CachyOS with Limine and mkinitcpio | `sudo limine-mkinitcpio` |
 
-After restarting, `command -v otd otd-daemon otd-gui` should print no paths, and `systemctl --user status opentabletdriver.service` should report that the unit could not be found. If either check finds a copy, inspect the reported path for a second installation.
+On EndeavourOS, check which dracut helper your system has installed:
 
-### Optional settings cleanup
+```bash
+pacman -Q eos-dracut
+pacman -Q kernel-install-for-dracut
+```
 
-By default, Linux settings and plugins are in `~/.config/OpenTabletDriver`. Custom tablet definitions may also be in `~/.local/share/OpenTabletDriver/Configurations`. In your file manager, move these folders to a backup location or delete them if you want a fresh start. Repeat for other accounts as needed. If you set a custom application data path, check that location too. [OpenTabletDriver application data](https://opentabletdriver.net/Wiki/FAQ/General)
+If only `eos-dracut` reports a version, use the GRUB command. If only `kernel-install-for-dracut` reports a version, use the systemd-boot command. Pacman reports a package as missing when it is absent. If both or neither are installed, check your bootloader and initramfs setup against the EndeavourOS documentation before proceeding. On UEFI systems, `sudo bootctl status` can show the **Current Boot Loader**. We verified the helper package check on both lab configurations. [EndeavourOS dracut helpers](https://discovery.endeavouros.com/dracut/) · [bootctl manual](https://www.freedesktop.org/software/systemd/man/latest/bootctl.html)
 
 ## Advanced installation options
 
@@ -371,7 +384,7 @@ sudo install -Dm644 /usr/local/lib/modules-load.d/opentabletdriver.conf /etc/mod
 /usr/local/bin/otd --version
 ```
 
-Run the command for your boot setup, then reboot. On EndeavourOS with dracut, use `sudo dracut-rebuild` for GRUB or `sudo reinstall-kernels` for systemd-boot. On CachyOS with Limine and mkinitcpio, use `sudo limine-mkinitcpio`. The lab also extracted the official tarball on the EndeavourOS systemd-boot copy, rebuilt the boot image, rebooted, checked the CLI version, and enabled the user service. The systemd-boot run did not include a GUI check. [EndeavourOS dracut documentation](https://discovery.endeavouros.com/dracut/) · [CachyOS boot manager documentation](https://wiki.cachyos.org/configuration/boot_manager_configuration/)
+Follow [Rebuild the boot image and restart](#rebuild-the-boot-image-and-restart) for your EndeavourOS or CachyOS setup. The lab also extracted the official tarball on an EndeavourOS systemd-boot copy, rebuilt the boot image, rebooted, checked the CLI version, and enabled the user service. The systemd-boot run did not include a GUI check.
 
 After signing in, follow [Start the driver and check tablet detection](#3-start-the-driver-and-check-tablet-detection). If you previously enabled the Pacman package's service, run `systemctl --user daemon-reload` and `systemctl --user reenable opentabletdriver.service` first to refresh its login symlink. Check the unit path with `systemctl --user show opentabletdriver.service -p FragmentPath`. The tarball's unit is under `/usr/local/lib/systemd/user/`.
 
