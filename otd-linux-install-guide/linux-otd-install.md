@@ -6,6 +6,7 @@
 This guide walks you through installing and setting up OpenTabletDriver on selected x86-64 Linux distributions. It links to separate instructions for advanced options and other setups.
 
 - Debian 13 (Trixie)
+- Pop!_OS 24.04 LTS
 - Fedora 45
 - EndeavourOS
 - CachyOS
@@ -20,6 +21,7 @@ This guide walks you through installing and setting up OpenTabletDriver on selec
 This guide uses your distro’s package manager.
 
 - **Debian** installs the official DEB package downloaded from GitHub.
+- **Pop!_OS** uses APT to install the official DEB package downloaded from GitHub.
 - **Fedora** uses DNF to install the official RPM package downloaded from GitHub. Fedora Atomic desktops such as Silverblue and Kinoite are outside this guide’s scope.
 - **EndeavourOS** builds and installs the AUR package with `yay`.
 - **CachyOS** installs the package from its own repository.
@@ -36,7 +38,7 @@ See [Advanced installation options](linux-otd-advanced.md) to choose a different
 | Gentoo | [Gentoo](https://opentabletdriver.net/Wiki/Install/Linux#gentoo) |
 | NixOS | [NixOS](https://opentabletdriver.net/Wiki/Install/Linux#nixos) |
 | Bazzite | [Bazzite](https://opentabletdriver.net/Wiki/Install/Linux#bazzite) |
-| Flatpak, including on the four distros above | [Flatpak and its prerequisites](https://opentabletdriver.net/Wiki/Install/Linux#flatpak) |
+| Flatpak | [Flatpak and its prerequisites](https://opentabletdriver.net/Wiki/Install/Linux#flatpak) |
 | Manually building the AUR package with `makepkg` | [Arch Linux `makepkg` method](https://opentabletdriver.net/Wiki/Install/Linux#manual-makepkg-method) |
 
 ## 1. Prepare your system
@@ -77,6 +79,7 @@ Those instructions include restarting your computer before you start the OTD dae
 | Your system | Where to start |
 | --- | --- |
 | Debian 13 | [Install the official DEB](linux-otd-install-debian.md) |
+| Pop!_OS 24.04 LTS | [Install the official DEB on Pop!_OS](linux-otd-install-popos.md) |
 | Fedora 45 | [Install the official RPM](linux-otd-install-fedora.md) |
 | EndeavourOS | [Install the AUR package](linux-otd-install-endeavouros.md) |
 | CachyOS | [Install the CachyOS repository package](linux-otd-install-cachyos.md) |
@@ -169,6 +172,7 @@ Use the rebuild command for your setup. If you use EndeavourOS and are unsure wh
 | Setup | Rebuild command |
 | --- | --- |
 | Debian with initramfs-tools | `sudo update-initramfs -u -k all` |
+| Pop!_OS 24.04 LTS with initramfs-tools | `sudo update-initramfs -u -k all` |
 | Fedora with dracut | `sudo dracut --regenerate-all --force` |
 | EndeavourOS with GRUB and dracut | `sudo dracut-rebuild` |
 | EndeavourOS with systemd-boot and dracut | `sudo reinstall-kernels` |

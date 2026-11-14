@@ -7,7 +7,7 @@ systemctl --user enable opentabletdriver.service
 systemctl --user is-active graphical-session.target
 ```
 
-If the desktop check prints `active`, the enabled service starts at login. This worked on **Fedora Workstation with GNOME Wayland**, **EndeavourOS with Plasma Wayland**, and **CachyOS with Plasma Wayland**.
+If the desktop check prints `active`, the enabled service starts at login. This worked on **Pop!_OS with COSMIC Wayland**, **Fedora Workstation with GNOME Wayland**, **EndeavourOS with Plasma Wayland**, and **CachyOS with Plasma Wayland**.
 
 If the check prints `inactive` on a desktop other than Xfce, see the [upstream autostart guidance](https://opentabletdriver.net/Wiki/FAQ/Linux#autostart).
 
