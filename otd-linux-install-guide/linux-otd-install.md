@@ -5,11 +5,19 @@
 
 This guide walks you through installing and setting up OpenTabletDriver on selected x86-64 Linux distributions. It links to separate instructions for advanced options and other setups.
 
+The document covers **OpenTabletDriver v0.6.8.1**.
+
 - Debian 13 (Trixie)
 - Pop!_OS 24.04 LTS
 - Fedora 45
 - EndeavourOS
 - CachyOS
+
+### Prerequisites
+
+OpenTabletDriver v0.6.8.1 requires the **.NET 10 runtime**. The [installation instructions for your distro](#2-install-opentabletdriver) cover how to get it.
+
+You’ll need an account with `sudo` access to install packages and rebuild the boot image. Run `sudo -v` to check that your account can use `sudo`.
 
 ## Notes
 
