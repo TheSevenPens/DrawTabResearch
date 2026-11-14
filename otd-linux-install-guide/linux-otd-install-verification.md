@@ -1,0 +1,53 @@
+# Lab verification of OpenTabletDriver installation on Linux
+
+This document records the VM tests behind the [Linux install guide](linux-otd-install-guide.md), including installation, automatic startup, boot-image checks, and the Debian and Fedora upgrade and rollback tests. See the [Linux uninstall guide](linux-otd-uninstall-guide.md#vm-removal-results) for removal tests.
+
+## Verification by distro
+
+| Distro | Latest official GitHub download | Exact official GitHub release install | Build locally from source |
+| --- | --- | --- | --- |
+| Debian 13.7 | `.deb` download verified | `v0.6.8.1` DEB installed and GUI tested in the VM | Upstream tag build available. Untested. |
+| Fedora 45 | `.rpm` download verified | `v0.6.8.1` RPM installed and GUI connection verified on Xfce and GNOME Wayland | Upstream tag build available. Untested. |
+| EndeavourOS | Generic x64 archive download verified | Official `v0.6.8.1` tarball installed on a fresh VM with GRUB and dracut. Daemon and GUI verified after reboot in Plasma Wayland. | AUR build of `v0.6.8` installed and GUI tested in the VM. The direct upstream tag-build command in the [advanced installation guide](linux-otd-advanced-installation.md#build-an-exact-version-locally) remains untested. |
+| CachyOS | Generic x64 archive download verified | Official `v0.6.8.1` tarball installed and GUI tested in Plasma Wayland with Limine and mkinitcpio. | Upstream tag build available. Untested. We also verified the prebuilt CachyOS repository package. |
+
+The latest-release download checks ran on the workstation. GitHub resolved them to `v0.6.8.1`, and the DEB and RPM hashes matched the pinned packages tested in the VMs.
+
+The tests used x86-64 VMs on fresh disks or disposable copies of earlier lab VMs. No vendor tablet drivers or physical tablets were present. Xfce on Debian and Fedora and Plasma Wayland on EndeavourOS and CachyOS displayed the first-launch guide and connected to the OpenTabletDriver daemon. A rescan from the GUI reported that no tablets were detected on each system.
+
+- **Debian 13.7.** APT resolved .NET Runtime `10.0.15` after adding Microsoft's Debian 13 feed. We verified the installed CLI and `/dev/uinput` after restart. Systemd skipped daemon startup in the initial headless session. The user service started once the Xfce display was available.
+- **Fedora 45.** DNF installed .NET Runtime `10.0.13` from Fedora's updates repository. We ran the documented `dracut` command and verified a successful reboot into Xfce. With SELinux enforcing during the setup, the user service started, `/dev/uinput` was present, and the GUI connected to the daemon.
+- **Fedora Workstation 45, November 14, 2026.** We installed Workstation from the `45-1.4` live ISO on a blank x86-64 disk. We downloaded and installed the official `0.6.8.1-1` RPM, verified its SHA-256, and ran the guide's `dracut` command. DNF installed .NET Runtime `10.0.13`. We enabled the service before reboot. It stayed inactive at the GDM login screen and started automatically after signing in to GNOME 51 on Wayland, with SELinux enforcing. The GUI then connected to the daemon. [Fedora Workstation download](https://fedoraproject.org/workstation/download/)
+- **EndeavourOS Titan Nova.** The offline ISO install used GRUB and Plasma Wayland. The system upgrade required resolving a conflict with the old `plasma-x11-session` package and switching to a faster Arch mirror. We built AUR package `0.6.8-1` with `yay` at recipe commit `0000843ee4cc5d67550d99cad8da8d53a74521d8`. In the unattended test, `yay` built the package but could not prompt for sudo, so we installed the built artifact with `pacman -U`. After `dracut-rebuild` and reboot, the enabled user service started automatically at Plasma login.
+
+- **CachyOS.** Installed from Desktop ISO `260809` with UEFI, Limine, and Plasma Wayland. Pacman installed the CachyOS repository package `0.6.8.1-2` and resolved .NET Runtime `10.0.14`. The `limine-mkinitcpio` wrapper rebuilt the boot image and updated `/boot/limine.conf`. After restart, we verified kernel `7.3.4-1-cachyos`, the presence of `/dev/uinput`, and explicit service startup with `systemctl --user enable --now` in Plasma.
+
+- **Earlier tarball runs on reused EndeavourOS and CachyOS VMs.** We made separate writable copies of the existing test VMs, removed their Pacman-managed OpenTabletDriver packages, and moved their prior user settings aside. We used the existing .NET `10.0.14` runtimes and GTK dependencies. After installing the exact GitHub archive and rebuilding the initramfs, both guests rebooted. We verified that the desktop user could write to `/dev/uinput`, that systemd loaded the service under `/usr/local`, and that both the running daemon and the GTK GUI came from the archive under `/usr/local`. A scan from each GUI reported no tablets.
+
+- **Fresh EndeavourOS tarball run, November 14, 2026.** We installed Titan Nova (ISO `2026.08.15`) on a blank VM disk with GRUB and Plasma. OpenTabletDriver and .NET 10 were absent at baseline. The ISO already supplied GTK 3, libevdev, libX11, and libXrandr. We ran the [tarball command blocks](linux-otd-advanced-installation.md#official-github-tarball-on-endeavouros-or-cachyos) in order, using the default mirrors and accepting the Plasma X11 session removal prompt. Pacman installed .NET Runtime `10.0.14`. The GitHub download passed the recorded SHA-256 check, and the extracted CLI reported `0.6.8.1`. After `sudo dracut-rebuild` and reboot into kernel `7.3.4-arch1-1`, we ran the documented startup commands from a Plasma Wayland desktop terminal. The service reported `active (running)` from `/usr/local/lib/systemd/user/opentabletdriver.service`, the signed-in user could write to `/dev/uinput`, and the first-launch GUI opened and connected to the daemon. The listed dependencies were sufficient on this fresh desktop.
+
+**Automatic startup at desktop login.** The enabled service started automatically on Fedora 45 GNOME Wayland and on EndeavourOS and CachyOS Plasma Wayland. On Debian 13.7 and Fedora 45 with Xfce and LightDM, enabling the service alone left both it and `graphical-session.target` inactive after desktop login. The Xfce login entry worked with LightDM autologin. In a follow-up on November 14, 2026, we kept the systemd service enabled, disabled LightDM autologin, and rebooted both VMs. The service was inactive at the greeter. After a manual Xfce sign-in, it was `active` and `enabled` on both VMs, with one OpenTabletDriver daemon process per guest. The graphical session target stayed inactive. These runs used OpenTabletDriver `0.6.8.1` on Debian, Fedora, and CachyOS. Physical tablet detection, mapping, pressure, and tilt remain unverified.
+
+The connection guidance, `uinput` errors, Artist Mode tip binding, and multi-monitor steps were checked against the upstream FAQs on November 14, 2026. [General FAQ](https://opentabletdriver.net/Wiki/FAQ/General) · [Linux FAQ](https://opentabletdriver.net/Wiki/FAQ/Linux)
+
+**Debian boot-image verification.** On Debian 13.7 with `initramfs-tools`, `MODULES=most`, and kernel `6.12.116+deb13-amd64`, the official DEB's post-install script attempted to unload the conflicting modules, loaded `uinput` if needed, and reloaded udev rules. The initramfs SHA-256 stayed the same after APT installed the package. It already contained `wacom.ko.xz`. Running `sudo update-initramfs -u -k all` added the packaged `99-opentabletdriver.conf` while retaining the module binary. Purging the package left the override in the existing boot image until we rebuilt it. We inspected the image contents with `lsinitramfs`. Separately, after reboot, a dry run of `modprobe wacom` checked the running system’s module configuration. It resolved to the override while the package was installed and to the module after purge and reboot.
+
+## VM upgrade and rollback results
+
+On November 14, 2026, we installed the official `v0.6.8` DEB and RPM on disposable copies of the Debian 13.7 and Fedora 45 Xfce VMs. With the v0.6.8 daemon running, we changed `LockUsableAreaDisplay` from `true` to `false` and saved it using the OpenTabletDriver CLI. We stopped the daemon, installed `v0.6.8.1` over the old package with APT or DNF, rebuilt the boot image, and rebooted. Both kept the systemd user service enabled and used the tested Xfce login entry.
+
+The settings file was byte-for-byte unchanged immediately after both package upgrades. After manual LightDM sign-in, the daemon started automatically on both VMs. Both reported `0.6.8.1`, and a settings export from the running daemon still had `LockUsableAreaDisplay=false`. The exported settings matched the previous values apart from the revision field. [Official v0.6.8 release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8) · [Official v0.6.8.1 release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8.1)
+
+For the rollback, we made disposable copies of the upgraded VMs. With the `v0.6.8.1` daemon running, we changed `LockUsableAreaTablet` from `true` to `false` and saved it as a `v0.6.8.1` settings file. We stopped the daemon, installed the older DEB with APT's `--allow-downgrades` or the older RPM with DNF's `downgrade`, rebuilt the boot image, and rebooted. Both downgrades left the settings file byte-for-byte unchanged. After manual LightDM sign-in, the enabled daemon started automatically via the Xfce login entry and reported `v0.6.8`. An export from the running daemon matched the saved settings apart from the revision field, including `LockUsableAreaTablet=false`. The test used global settings with no attached tablet or tablet-specific profiles.
+
+## Tested package hashes
+
+| Tested package | SHA-256 |
+| --- | --- |
+| `opentabletdriver_0.6.8-1_x64.deb` | `9d6bdf8bea3159b38b5e7abf1fae5b719c1b8bb230af8139b0afae9c707da81f` |
+| `opentabletdriver-0.6.8-1.x86_64.rpm` | `fda169d90ee470eecf98e6253ba79b7d276d9465240cba4b8873de1d05b149c8` |
+| `opentabletdriver_0.6.8.1-1_x64.deb` | `346c90ccd152f26aa4d2ef1fcb5767f6b5e73535ee809418f2c9f539fe0f42b2` |
+| `opentabletdriver-0.6.8.1-1.x86_64.rpm` | `c6d3f27adba1a5a5070a13b781bb559f30533785df5de33e7d8cbb2f51bd5fa4` |
+| Local AUR build `opentabletdriver-0.6.8-1-x86_64.pkg.tar.zst` | `add88f56ba13929c5849649819f3b7fb9ccd2dceb6f9d0227798e03e2eaab12f` |
+| CachyOS repository package `opentabletdriver-0.6.8.1-2-x86_64.pkg.tar.zst` | `20cd326691be16efc81b3f8a4e6c964a05a8d47045323171b517ff3296578e1e` |
+| Official `opentabletdriver-0.6.8.1_linux-x64_binary.tar.gz` | `b17929fe2071ab97381706f8f36391312c2495cd1037e1dc121a0aee7abfe1d5` |

@@ -1,6 +1,6 @@
 # Linux tablet driver VM lab setup
 
-The lab runs disposable Debian amd64 guests under QEMU/KVM on a CachyOS host. A Windows workstation connects to the host over SSH. Vendor packages run inside the guest. The first lab run used Debian 13.7 and tested [Huion, XPPen, and Xencelabs](linux-installer-analysis.md#live-install-and-removal-results).
+The lab runs disposable Debian amd64 guests under QEMU/KVM on a CachyOS host. A Windows workstation connects to the host over SSH. Vendor packages run inside the guest. The first lab run used Debian 13.7 and tested [Huion, XPPen, and Xencelabs](../investigations/tablet-driver-install-footprint/linux-installer-analysis.md#live-install-and-removal-results).
 
 ## 1. Set up and verify the hypervisor
 
