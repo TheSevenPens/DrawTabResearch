@@ -49,6 +49,14 @@ After the first successful login, repeat the KVM smoke test as `tablet-lab` to v
 | The SSH server recognized the public key but login still failed. | The first key-generation invocation produced a private key that the Windows client could not unlock. We generated a replacement, confirmed that it could derive the matching public key, and replaced the lab account's authorized key. |
 [OpenSSH server manual](https://man.openbsd.org/sshd.8)
 
+### Keep the CachyOS host awake
+
+On the host, sign in to the KDE Plasma desktop and open **System Settings → Power Management**. In the AC power settings, set **Suspend Session → When inactive → Do nothing**. In **Display and Brightness**, disable **Turn off screen** for sessions where the VM needs to stay visible on the physical monitor. Apply the changes, then verify that SSH remains reachable and the monitor stays on past the old timeout. The desktop power settings belong to the signed-in user. The separate `tablet-lab` SSH account could neither change those settings nor acquire a system sleep inhibitor in this setup.
+
+The host suspended during a fresh EndeavourOS installation and SSH stopped responding. The host user woke it and applied both AC power settings from the KDE desktop. The guest installer resumed from where it had paused.
+
+[KDE Plasma Power Management](https://docs.kde.org/stable_kf6/en/powerdevil/kcontrol/powerdevil/)
+
 ## 3. Provision a guest and run the tests
 
 1. Download Debian's generic amd64 cloud QCOW2 image and its published `SHA512SUMS` over HTTPS. Verify the image with the matching SHA-512 entry. Store it under `~/vm-lab/images/` as the base image.

@@ -1,6 +1,6 @@
 # Install OpenTabletDriver on Linux
 
-This guide covers OpenTabletDriver on **Debian 13 (Trixie)**, **Fedora 45**, **EndeavourOS**, and **CachyOS**, all x86-64. Debian, Fedora, and CachyOS used OpenTabletDriver **0.6.8.1**. EndeavourOS used the AUR package **0.6.8-1**. Start with a clean desktop installation and a regular user with sudo access for package installation. The commands use Bash. Use the install section for your distribution, then follow the shared desktop steps. These Fedora steps apply to DNF-based installations. [OpenTabletDriver Linux installation guide](https://opentabletdriver.net/Wiki/Install/Linux)
+This guide covers x86-64 desktop installs of OpenTabletDriver on **Debian 13 (Trixie)**, **Fedora 45**, **EndeavourOS**, and **CachyOS**. The lab used Xfce on Debian and Fedora and Plasma Wayland on EndeavourOS and CachyOS. The tests covered upstream **v0.6.8.1** and EndeavourOS AUR package **0.6.8-1**. Start with a regular desktop account and sudo access for package installation. The commands use Bash. [OpenTabletDriver Linux installation guide](https://opentabletdriver.net/Wiki/Install/Linux)
 
 | Your system | Where to start |
 | --- | --- |
@@ -11,7 +11,7 @@ This guide covers OpenTabletDriver on **Debian 13 (Trixie)**, **Fedora 45**, **E
 
 For release selection and source builds, see [Choose how to get a version](#choose-how-to-get-a-version).
 
-## Setups covered by the official guide
+## Setups outside this guide
 
 This guide is scoped to the four x86-64 desktop setups above. Use OpenTabletDriver’s official instructions for these additional cases.
 
@@ -28,6 +28,8 @@ This guide is scoped to the four x86-64 desktop setups above. Use OpenTabletDriv
 
 For legacy udev rules, kernel module conflicts, and permissions troubleshooting, see OpenTabletDriver’s [Linux permissions guide](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux) and [Linux FAQ](https://opentabletdriver.net/Wiki/FAQ/Linux).
 
+The Fedora RPM steps cover DNF-based Fedora. Fedora Atomic desktops such as Silverblue and Kinoite are outside this guide’s scope.
+
 ## 1. Prepare your system
 
 Look up your exact tablet model in the supported tablets list and check any notes for Linux. Check your distribution and architecture. [OpenTabletDriver supported tablets](https://opentabletdriver.net/Tablets)
@@ -37,7 +39,9 @@ cat /etc/os-release
 uname -m
 ```
 
-If you previously installed a manufacturer driver, quit it and use the manufacturer's uninstaller or your package manager before proceeding. Back up any tablet settings you want to keep. If you already have OpenTabletDriver from another source, follow [Remove OpenTabletDriver](#5-remove-opentabletdriver) before switching install methods. The install packages and boot-image steps below handle kernel integration. [Upstream guidance on conflicting drivers](https://opentabletdriver.net/Wiki/FAQ/General#i-see-two-moving-cursors-when-hovering-my-pen)
+If you previously installed a manufacturer driver, quit it and use the manufacturer's uninstaller or your package manager before proceeding. Back up any tablet settings you want to keep. If you already have OpenTabletDriver from another source, follow [Remove OpenTabletDriver](#5-remove-opentabletdriver) before switching install methods. [Upstream guidance on conflicting drivers](https://opentabletdriver.net/Wiki/FAQ/General#i-see-two-moving-cursors-when-hovering-my-pen)
+
+**Built-in tablet support can stop working during installation.** OpenTabletDriver installs kernel-module overrides to prevent drivers such as `wacom` and `hid_uclogic` from competing for the same tablet. The Debian package also attempts to unload those modules during installation. The removal steps below clear OpenTabletDriver’s overrides and rebuild the boot image. Recovery of built-in tablet input after removal still needs a hardware test. [Upstream Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux)
 
 For the first detection test, connect the tablet using a USB data cable. Upstream documents partial support for wireless dongles and no support for Bluetooth tablet connections. [Upstream connection guidance](https://opentabletdriver.net/Wiki/FAQ/General#my-tablet-is-supported-but-not-detected)
 
@@ -65,7 +69,7 @@ gh release download --repo "$repo" --pattern "$asset"
 gh release download v0.6.8.1 --repo "$repo" --pattern "$asset"
 ```
 
-Without `gh`, use the release page and download the asset from **Assets**. The generic `_binary.tar.gz` contains the binaries and system files for a manual install. It requires the runtime and distro-specific device permissions and initramfs setup. Use the generic binary archive for a fresh install. Upstream describes the `_simple.tar.gz` archive as a way to test binaries on an existing installation. [Latest official release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/latest) · [Release v0.6.8.1](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8.1) · [Upstream Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux) · [Upstream archive formats](https://github.com/OpenTabletDriver/OpenTabletDriver/blob/v0.6.8.1/README.md#linux)
+Without `gh`, use the release page and download the asset from **Assets**. The generic `_binary.tar.gz` contains the binaries and system files for a manual install. It requires the runtime and distro-specific device permissions and initramfs setup. Use the generic binary archive for a standalone installation, including when replacing a package after removing it. Upstream describes the `_simple.tar.gz` archive as a way to test binaries on an existing installation. [Latest official release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/latest) · [Release v0.6.8.1](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8.1) · [Upstream Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux) · [Upstream archive formats](https://github.com/OpenTabletDriver/OpenTabletDriver/blob/v0.6.8.1/README.md#linux)
 
 #### Build an exact version locally
 
@@ -87,7 +91,7 @@ dotnet --list-sdks
 | --- | --- | --- | --- |
 | Debian 13.7 | `.deb` download verified | `v0.6.8.1` DEB installed and GUI tested in the VM | Upstream tag build available. Untested. |
 | Fedora 45 | `.rpm` download verified | `v0.6.8.1` RPM installed and GUI tested in the VM | Upstream tag build available. Untested. |
-| EndeavourOS | Generic x64 archive download verified | Official `v0.6.8.1` tarball installed and GUI tested in Plasma Wayland with GRUB and dracut. | AUR build of `v0.6.8` installed and GUI tested in the VM. The direct upstream tag-build command above remains untested. |
+| EndeavourOS | Generic x64 archive download verified | Official `v0.6.8.1` tarball installed on a fresh VM with GRUB and dracut. Daemon and GUI verified after reboot in Plasma Wayland. | AUR build of `v0.6.8` installed and GUI tested in the VM. The direct upstream tag-build command above remains untested. |
 | CachyOS | Generic x64 archive download verified | Official `v0.6.8.1` tarball installed and GUI tested in Plasma Wayland with Limine and mkinitcpio. | Upstream tag build available. Untested. We also verified the prebuilt CachyOS repository package. |
 
 The latest-release download checks ran on the workstation. GitHub resolved them to `v0.6.8.1`, and the DEB and RPM hashes matched the pinned packages tested in the VMs.
@@ -107,7 +111,13 @@ curl -fLO "https://github.com/OpenTabletDriver/OpenTabletDriver/releases/downloa
 dpkg-deb -f "$deb" Version Architecture Depends
 ```
 
-This build requires `dotnet-runtime-10.0`. On the clean Debian VM, the default feeds did not provide it. If `apt-cache policy dotnet-runtime-10.0` shows no candidate, add Microsoft's Debian 13 feed. This feed is specific to Debian 13. Keep the .NET packages on a single provider to avoid mismatched runtime components. [Microsoft's Debian .NET instructions](https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian) · [OpenTabletDriver Debian instructions](https://opentabletdriver.net/Wiki/Install/Linux#ubuntu--debian)
+This build requires `dotnet-runtime-10.0`. Check whether your configured repositories provide it.
+
+```bash
+apt-cache policy dotnet-runtime-10.0
+```
+
+If APT reports `Candidate: (none)` or returns no entry for the package, add Microsoft's Debian 13 feed as shown below. The lab's clean Debian VM needed this feed. Keep the .NET packages on a single provider to avoid mismatched runtime components. [Microsoft's Debian .NET instructions](https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian) · [OpenTabletDriver Debian instructions](https://opentabletdriver.net/Wiki/Install/Linux#ubuntu--debian)
 
 ```bash
 curl -fLO https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb
@@ -125,6 +135,10 @@ dpkg-query -W opentabletdriver
 dotnet --list-runtimes
 sudo reboot
 ```
+
+For the tested release, look for a `Microsoft.NETCore.App 10.0.x` entry, where `x` is the installed patch version.
+
+The clean Debian VM install used the DEB and a reboot. The lab explicitly rebuilt the boot image during removal to clear any overrides that might be present there. Whether installation also needs a rebuild on Debian with a physical tablet and its built-in driver already active remains unverified.
 
 ### Fedora 45
 
@@ -153,7 +167,7 @@ pacman -Q opentabletdriver
 
 Run `yay` in an interactive terminal so it can prompt when it needs sudo. The AUR recipe builds from source using the .NET 10 SDK and declares the .NET 10 runtime. Both came from the configured package repositories in the test.
 
-Rebuild the boot image with the command for your bootloader, then restart. For **GRUB with dracut**, use `sudo dracut-rebuild`. For **systemd-boot with dracut**, use `sudo reinstall-kernels`. The GRUB path was tested. [OpenTabletDriver EndeavourOS instructions](https://opentabletdriver.net/Wiki/Install/Linux#endeavouros) · [EndeavourOS dracut documentation](https://discovery.endeavouros.com/dracut/)
+Rebuild the boot image with the command for your bootloader, then restart. For **GRUB with dracut**, use `sudo dracut-rebuild`. For **systemd-boot with dracut**, use `sudo reinstall-kernels`. The lab verified the full AUR install on GRUB and verified the rebuild and removal on systemd-boot with a preinstalled AUR package. [OpenTabletDriver EndeavourOS instructions](https://opentabletdriver.net/Wiki/Install/Linux#endeavouros) · [EndeavourOS dracut documentation](https://discovery.endeavouros.com/dracut/)
 
 ### CachyOS
 
@@ -165,7 +179,7 @@ pacman -Q opentabletdriver
 dotnet --list-runtimes
 ```
 
-Rebuild the boot image before rebooting. For the CachyOS **Limine** setup with mkinitcpio, use the distribution's wrapper. For other bootloader configurations, follow the applicable CachyOS procedure. [CachyOS boot manager documentation](https://wiki.cachyos.org/configuration/boot_manager_configuration/)
+Rebuild the boot image before rebooting. These commands cover CachyOS with **Limine** and mkinitcpio. [CachyOS boot manager documentation](https://wiki.cachyos.org/configuration/boot_manager_configuration/)
 
 ```bash
 sudo limine-mkinitcpio
@@ -185,7 +199,9 @@ printf '%s  %s\n' b17929fe2071ab97381706f8f36391312c2495cd1037e1dc121a0aee7abfe1
 tar -tzf "$archive"
 ```
 
-After the checksum passes, extract the archive into the system. The launcher scripts expect the binaries under `/usr/local/lib/opentabletdriver/`. The archive also places the udev rule under `/etc/udev/rules.d/`. Install the bundled module configuration in `/etc` so the host tools pick it up, then rebuild the boot image. [OpenTabletDriver Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux)
+On an EndeavourOS installation from an older ISO, Pacman may ask to remove `plasma-x11-session` during the Plasma 6.8 upgrade. The fresh lab VM showed this prompt. We accepted it for the Plasma Wayland setup and continued with the same command. [EndeavourOS Plasma 6.8 migration notes](https://forum.endeavouros.com/t/kde-plasma-x11-session-removed-from-archrepos-plasma-moved-to-wayland-only/81977)
+
+Check that the archive checksum reports `OK` before extracting. In the archive listing, the release files are under `opentabletdriver/usr/local/` and `opentabletdriver/etc/udev/rules.d/`, with parent directory entries above them. The extraction command strips the top-level `opentabletdriver/` directory. The launcher scripts expect the binaries under `/usr/local/lib/opentabletdriver/`. Copy the bundled module configuration to `/etc` so the host tools pick it up, then rebuild the boot image. [OpenTabletDriver Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux)
 
 ```bash
 sudo tar --no-same-owner --no-overwrite-dir --strip-components=1 -xzf "$archive" -C /
@@ -194,7 +210,7 @@ sudo install -Dm644 /usr/local/lib/modules-load.d/opentabletdriver.conf /etc/mod
 /usr/local/bin/otd --version
 ```
 
-Run the command for your boot setup, then reboot. We tested `sudo dracut-rebuild` on EndeavourOS with GRUB and `sudo limine-mkinitcpio` on CachyOS with Limine. For EndeavourOS with systemd-boot and dracut, EndeavourOS documents `sudo reinstall-kernels`. [EndeavourOS dracut documentation](https://discovery.endeavouros.com/dracut/) · [CachyOS boot manager documentation](https://wiki.cachyos.org/configuration/boot_manager_configuration/)
+Run the command for your boot setup, then reboot. On EndeavourOS with dracut, use `sudo dracut-rebuild` for GRUB or `sudo reinstall-kernels` for systemd-boot. On CachyOS with Limine and mkinitcpio, use `sudo limine-mkinitcpio`. The lab also extracted the official tarball on the EndeavourOS systemd-boot copy, rebuilt the boot image, rebooted, checked the CLI version, and enabled the user service. The systemd-boot run did not include a GUI check. [EndeavourOS dracut documentation](https://discovery.endeavouros.com/dracut/) · [CachyOS boot manager documentation](https://wiki.cachyos.org/configuration/boot_manager_configuration/)
 
 After signing in, follow the shared desktop steps below. If you previously enabled the Pacman package's service, run `systemctl --user daemon-reload` and `systemctl --user reenable opentabletdriver.service` first to refresh its login symlink. Check the unit path with `systemctl --user show opentabletdriver.service -p FragmentPath`. The tarball's unit is under `/usr/local/lib/systemd/user/`.
 
@@ -207,6 +223,8 @@ systemctl --user enable --now opentabletdriver.service
 systemctl --user status opentabletdriver.service --no-pager
 otd-gui
 ```
+
+Look for **active (running)** in the service status. Run the daemon and GUI from your regular desktop account. If the daemon is running as your user service, you can close the GUI and leave the daemon running. [Upstream daemon guidance](https://opentabletdriver.net/Wiki/FAQ/General#my-tablet-stop-responding-when-i-close-the-opentabletdriver-user-interface)
 
 The packaged service checks for `WAYLAND_DISPLAY` or `DISPLAY` in the systemd user environment. If you run the start command over plain SSH, it can enable the service while skipping startup. Check the status from the desktop session where you plan to use the tablet.
 
@@ -227,7 +245,10 @@ journalctl --user -u opentabletdriver.service -b --no-pager
 
 ## 4. Configure the tablet for drawing
 
-In **Output**, choose the display you want to map and lock the tablet area's aspect ratio. Choose **Artist Mode** for pressure, then clear the existing tip binding from the advanced binding editor as directed by the Linux FAQ. Use the Artist Mode pen bindings if you configure pen buttons. Click **Apply** to activate the settings and **Save** to keep them. [OpenTabletDriver Linux FAQ on pressure](https://opentabletdriver.net/Wiki/FAQ/Linux#tablet-is-working-but-there-is-no-pressure)
+1. In **Output**, choose the display you want to map and lock the tablet area's aspect ratio.
+2. In the output mode selector at the bottom left, choose **Artist Mode**.
+3. In **Pen Settings**, open the tip binding's advanced editor with **…**, then choose **Clear**. Use **Artist Mode** pen bindings if you configure pen buttons.
+4. Click **Apply** to try the settings in your current session and **Save** to keep them for future sessions. [OpenTabletDriver Linux FAQ on pressure](https://opentabletdriver.net/Wiki/FAQ/Linux#tablet-is-working-but-there-is-no-pressure)
 
 Open a drawing app with a pressure-sensitive brush. Check that the pointer stays on the mapped display, a circle stays round, and light and heavy strokes look different. Check tilt separately if your tablet, pen, and brush support it.
 
@@ -251,6 +272,8 @@ Use the command for the package you installed. On EndeavourOS, Pacman removes th
 | CachyOS repository package | `sudo pacman -R opentabletdriver` |
 
 On Debian, use `sudo apt purge opentabletdriver` if you also want APT to remove any remaining package configuration. User settings are covered below. If you added files manually when troubleshooting, review those separately.
+
+These steps deliberately keep shared dependencies such as .NET. On Debian they also leave the Microsoft feed installed if you added it.
 
 ### Official GitHub tarball installs
 
@@ -323,7 +346,11 @@ All tests used fresh x86-64 VM disks with no vendor tablet drivers or physical t
 
 - **Official tarball on EndeavourOS and CachyOS.** We made separate writable copies of the existing test VMs, removed their Pacman-managed OpenTabletDriver packages, and moved their prior user settings aside. We used the existing .NET `10.0.14` runtimes and GTK dependencies. After installing the exact GitHub archive and rebuilding the initramfs, both guests rebooted. We verified that the desktop user could write to `/dev/uinput`, that systemd loaded the service under `/usr/local`, and that both the running daemon and the GTK GUI came from the archive under `/usr/local`. A scan from each GUI reported no tablets.
 
+- **Fresh EndeavourOS tarball run, November 14, 2026.** We installed Titan Nova (ISO `2026.08.15`) on a blank VM disk with GRUB and Plasma. OpenTabletDriver and .NET 10 were absent at baseline. The ISO already supplied GTK 3, libevdev, libX11, and libXrandr. We ran the guide’s tarball command blocks in order, using the default mirrors and accepting the Plasma X11 session removal prompt. Pacman installed .NET Runtime `10.0.14`. The GitHub download passed the recorded SHA-256 check, and the extracted CLI reported `0.6.8.1`. After `sudo dracut-rebuild` and reboot into kernel `7.3.4-arch1-1`, we ran the documented startup commands from a Plasma Wayland desktop terminal. The service reported `active (running)` from `/usr/local/lib/systemd/user/opentabletdriver.service`, the signed-in user could write to `/dev/uinput`, and the first-launch GUI opened and connected to the daemon. The listed dependencies were sufficient on this fresh desktop.
+
 Automatic startup at desktop login was verified on EndeavourOS. Physical tablet detection, mapping, pressure, and tilt remain unverified in these runs.
+
+The connection guidance, `uinput` errors, Artist Mode tip binding, and multi-monitor steps were checked against the upstream FAQs on November 14, 2026. [General FAQ](https://opentabletdriver.net/Wiki/FAQ/General) · [Linux FAQ](https://opentabletdriver.net/Wiki/FAQ/Linux)
 
 | Tested package | SHA-256 |
 | --- | --- |
