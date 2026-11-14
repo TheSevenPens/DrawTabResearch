@@ -73,7 +73,9 @@ ssh -N -L 127.0.0.1:5905:127.0.0.1:5905 tablet-lab-host
 
 Open the remote viewer in shared mode so it can connect alongside the local viewer. Both viewers show the same guest desktop, including any pointer or keyboard input sent remotely. Launch the local viewer from the host user's graphical session. Some desktop sessions require that user to open the viewer or approve access. For screenshots or scripted interaction, QEMU can also expose a monitor on a private Unix socket to capture the guest framebuffer and send input.
 
-[Debian Xfce desktop package](https://packages.debian.org/trixie/task-xfce-desktop) · [QEMU display options](https://www.qemu.org/docs/master/system/invocation.html) · [QEMU monitor commands](https://www.qemu.org/docs/master/system/monitor.html)
+The lab used LightDM and Xfce inside Debian. On the CachyOS desktop, Firefox served as the viewer using a local noVNC page. The page and the QEMU display listeners were bound to loopback. With QEMU's direct WebSocket listener, connect noVNC to the listener's root path. The default `/websockify` path is for a separate proxy and returned HTTP 404 in this setup. The host's graphical session ran under a different account from `tablet-lab`, so the signed-in user opened the viewer. From SSH, we started the OpenTabletDriver user service and opened the app on the guest's Xfce display, then verified the result with a QEMU framebuffer capture.
+
+[Debian Xfce desktop package](https://packages.debian.org/trixie/task-xfce-desktop) · [QEMU display options](https://www.qemu.org/docs/master/system/invocation.html) · [QEMU monitor commands](https://www.qemu.org/docs/master/system/monitor.html) · [noVNC documentation](https://novnc.com/noVNC/)
 
 ## Tailscale for a future setup
 
