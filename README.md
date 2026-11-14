@@ -8,9 +8,9 @@ Research on drawing tablets, pen displays, drivers, and related software. Each i
 
 ## OpenTabletDriver on Linux
 
-- [Install OpenTabletDriver](otd-linux-install-guide/linux-otd-install-guide.md)
-- [Uninstall OpenTabletDriver](otd-linux-install-guide/linux-otd-uninstall-guide.md)
-- [Advanced installation options](otd-linux-install-guide/linux-otd-advanced-installation.md)
+- [Install OpenTabletDriver](otd-linux-install-guide/linux-otd-install.md)
+- [Uninstall OpenTabletDriver](otd-linux-install-guide/linux-otd-uninstall.md)
+- [Advanced installation options](otd-linux-install-guide/linux-otd-advanced.md)
 - [Installation lab verification](otd-linux-install-guide/linux-otd-install-verification.md)
 
 ## Test lab

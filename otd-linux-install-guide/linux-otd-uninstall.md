@@ -1,6 +1,6 @@
 # Uninstall OpenTabletDriver on Linux
 
-These steps cover the Debian DEB, Fedora RPM, EndeavourOS AUR package, CachyOS repository package, and official GitHub tarball described in the [Linux install guide](linux-otd-install-guide.md).
+These steps cover the Debian DEB, Fedora RPM, EndeavourOS AUR package, CachyOS repository package, and official GitHub tarball described in the [Linux install guide](linux-otd-install.md).
 
 ## Stop OpenTabletDriver and turn off automatic startup
 
@@ -10,7 +10,7 @@ Quit the GUI. From the account that uses OpenTabletDriver, stop its daemon and t
 systemctl --user disable --now opentabletdriver.service
 ```
 
-If you created the [Xfce login entry](linux-otd-install-guide.md#start-automatically-at-desktop-login), remove it from the same account before uninstalling:
+If you created the [Xfce login entry](linux-otd-install.md#start-automatically-at-desktop-login), remove it from the same account before uninstalling:
 
 ```bash
 rm -f -- ~/.config/autostart/opentabletdriver-xfce.desktop
@@ -33,7 +33,7 @@ These steps deliberately keep shared dependencies such as .NET. On Debian they a
 
 ## Official GitHub tarball installs
 
-These paths are for the official `v0.6.8.1` x86-64 tarball installed using the [Linux tarball install steps](linux-otd-advanced-installation.md#official-github-tarball-on-endeavouros-or-cachyos). For a different release or layout, check the original archive with `tar -tzf "$archive"` and remove its corresponding files. Back up any configuration files you edited before removing them. [Official v0.6.8.1 release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8.1)
+These paths are for the official `v0.6.8.1` x86-64 tarball installed using the [Linux tarball install steps](linux-otd-advanced.md#official-github-tarball-on-endeavouros-or-cachyos). For a different release or layout, check the original archive with `tar -tzf "$archive"` and remove its corresponding files. Back up any configuration files you edited before removing them. [Official v0.6.8.1 release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8.1)
 
 ```bash
 sudo rm -f -- \
@@ -62,7 +62,7 @@ sudo rmdir --ignore-fail-on-non-empty -- \
 
 ## Verify removal
 
-Follow [Rebuild the boot image and restart](linux-otd-install-guide.md#rebuild-the-boot-image-and-restart) to clear any OpenTabletDriver kernel-module overrides from the boot image.
+Follow [Rebuild the boot image and restart](linux-otd-install.md#rebuild-the-boot-image-and-restart) to clear any OpenTabletDriver kernel-module overrides from the boot image.
 
 After restarting, `command -v otd otd-daemon otd-gui` should print no paths, and `systemctl --user status opentabletdriver.service` should report that the unit could not be found. If either check finds a copy, inspect the reported path for a second installation.
 

@@ -19,7 +19,7 @@ This guide covers x86-64 desktop installs of OpenTabletDriver on **Debian 13 (Tr
 | EndeavourOS | [Install the AUR package](#endeavouros) |
 | CachyOS | [Install the CachyOS repository package](#cachyos) |
 
-For a specific release, source build, or manual tarball install, see [Advanced installation options](linux-otd-advanced-installation.md). See [Lab verification](linux-otd-install-verification.md) for what was tested.
+For a specific release, source build, or manual tarball install, see [Advanced installation options](linux-otd-advanced.md). See [Lab verification](linux-otd-install-verification.md) for what was tested.
 
 ## Instructions outside this guide
 
@@ -58,11 +58,11 @@ uname -m
 If you previously installed a manufacturer driver, quit it and use the manufacturer's uninstaller or your package manager before proceeding.
 
 ### Switching OTD Install methods
-If you already have OpenTabletDriver from another source, follow [Uninstall OpenTabletDriver on Linux](linux-otd-uninstall-guide.md) before switching install methods. [Upstream guidance on conflicting drivers](https://opentabletdriver.net/Wiki/FAQ/General#two-cursors)
+If you already have OpenTabletDriver from another source, follow [Uninstall OpenTabletDriver on Linux](linux-otd-uninstall.md) before switching install methods. [Upstream guidance on conflicting drivers](https://opentabletdriver.net/Wiki/FAQ/General#two-cursors)
 
 ### OTD impact on built-in tablet support on Linux
 
-**Built-in tablet support can stop working during installation.** OpenTabletDriver installs kernel-module overrides to prevent drivers such as `wacom` and `hid_uclogic` from competing for the same tablet. The Debian package also attempts to unload those modules during installation. The [uninstall steps](linux-otd-uninstall-guide.md) clear OpenTabletDriver’s overrides and rebuild the boot image. Recovery of built-in tablet input after removal still needs a hardware test. [Upstream Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux)
+**Built-in tablet support can stop working during installation.** OpenTabletDriver installs kernel-module overrides to prevent drivers such as `wacom` and `hid_uclogic` from competing for the same tablet. The Debian package also attempts to unload those modules during installation. The [uninstall steps](linux-otd-uninstall.md) clear OpenTabletDriver’s overrides and rebuild the boot image. Recovery of built-in tablet input after removal still needs a hardware test. [Upstream Linux permissions](https://opentabletdriver.net/Wiki/Documentation/RequiredPermissions#linux)
 
 ### Verify your tablet is detected
 
@@ -116,7 +116,7 @@ sudo reboot
 
 For the tested release, look for a `Microsoft.NETCore.App 10.0.x` entry, where `x` is the installed patch version.
 
-The tested DEB leaves existing boot images unchanged. The rebuild adds the OpenTabletDriver module configuration to the boot image. Repeat the rebuild when [uninstalling](linux-otd-uninstall-guide.md#verify-removal) to remove that configuration from the image. [Debian update-initramfs manual](https://manpages.debian.org/trixie/initramfs-tools/update-initramfs.8.en.html)
+The tested DEB leaves existing boot images unchanged. The rebuild adds the OpenTabletDriver module configuration to the boot image. Repeat the rebuild when [uninstalling](linux-otd-uninstall.md#verify-removal) to remove that configuration from the image. [Debian update-initramfs manual](https://manpages.debian.org/trixie/initramfs-tools/update-initramfs.8.en.html)
 
 For a DEB downloaded from GitHub, get new OpenTabletDriver releases manually. See [Update OpenTabletDriver](#update-opentabletdriver).
 
@@ -247,7 +247,7 @@ GitHub downloads are updated manually. Check the official releases page for a ne
 | Fedora RPM | Download the new official x86-64 RPM into your current directory and set `rpm_file` to its actual filename. Run `sudo dnf install "./$rpm_file"`. |
 | EndeavourOS AUR package | Run `yay -Syu` in a regular user's terminal. Confirm that the transaction includes OpenTabletDriver if an AUR update is available. |
 | CachyOS repository package | Run `sudo pacman -Syu`. Pacman updates OpenTabletDriver when a newer build is available from your configured repositories. |
-| Manual GitHub tarball | Follow the [tarball removal steps](linux-otd-uninstall-guide.md#official-github-tarball-installs) for the old release, then [install the new archive](linux-otd-advanced-installation.md#official-github-tarball-on-endeavouros-or-cachyos). Use the filenames, checksum, layout, and dependencies for the new release. Keep your user settings if you want to reuse them. |
+| Manual GitHub tarball | Follow the [tarball removal steps](linux-otd-uninstall.md#official-github-tarball-installs) for the old release, then [install the new archive](linux-otd-advanced.md#official-github-tarball-on-endeavouros-or-cachyos). Use the filenames, checksum, layout, and dependencies for the new release. Keep your user settings if you want to reuse them. |
 
 After installing the new version, run the [boot-image rebuild for your setup](#rebuild-the-boot-image-and-restart) and restart. If you removed a tarball before installing its replacement, rebuild once after the new archive and its configuration are in place. After signing in, check `otd --version` and `systemctl --user is-active opentabletdriver.service`, then open the GUI. [Official releases](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/latest) · [Pacman manual](https://man.archlinux.org/man/pacman.8)
 
