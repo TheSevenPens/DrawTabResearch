@@ -229,7 +229,7 @@ After installing the new version, run the [boot-image rebuild for your setup](#r
 
 If you need to roll back, keep a copy of the previous package or archive. Install an older DEB with `sudo apt install --allow-downgrades "./$old_deb"` or an older RPM with `sudo dnf downgrade "./$old_rpm"`, setting the variable to the downloaded filename. For an AUR or CachyOS package, use `sudo pacman -U` with the saved older package if its dependencies are still compatible. For a tarball, remove the current archive's files and reinstall the previous archive. Restore your pre-update settings if the older version cannot read the newer settings, then rebuild the boot image and restart. [APT manual](https://manpages.debian.org/trixie/apt/apt.8.en.html) · [DNF5 downgrade manual](https://dnf5.readthedocs.io/en/stable/commands/downgrade.8.html) · [Pacman manual](https://man.archlinux.org/man/pacman.8)
 
-The lab verified an in-place upgrade from `v0.6.8` to `v0.6.8.1` using the official DEB on Debian 13.7 and the official RPM on Fedora 45. Both preserved the tested user setting and started the daemon automatically after reboot and Xfce login. Other version pairs, the AUR, CachyOS repository and tarball update paths, and rollback remain unverified. See [VM upgrade results](#vm-upgrade-results).
+The lab verified both the in-place upgrade from `v0.6.8` to `v0.6.8.1` and the rollback to `v0.6.8` using the official DEB on Debian 13.7 and the official RPM on Fedora 45. The tested settings survived, and the daemon started automatically after reboot and Xfce login. Other version pairs and the AUR, CachyOS repository, and tarball update and rollback paths remain unverified. See [VM upgrade and rollback results](#vm-upgrade-and-rollback-results).
 
 ## 5. Remove OpenTabletDriver
 
@@ -407,11 +407,13 @@ The connection guidance, `uinput` errors, Artist Mode tip binding, and multi-mon
 
 **Debian boot-image verification.** On Debian 13.7 with `initramfs-tools`, `MODULES=most`, and kernel `6.12.116+deb13-amd64`, the official DEB's post-install script attempted to unload the conflicting modules, loaded `uinput` if needed, and reloaded udev rules. The initramfs SHA-256 stayed the same after APT installed the package. It already contained `wacom.ko.xz`. Running `sudo update-initramfs -u -k all` added the packaged `99-opentabletdriver.conf` while retaining the module binary. Purging the package left the override in the existing boot image until we rebuilt it. We inspected the image contents with `lsinitramfs`. Separately, after reboot, a dry run of `modprobe wacom` checked the running system’s module configuration. It resolved to the override while the package was installed and to the module after purge and reboot.
 
-### VM upgrade results
+### VM upgrade and rollback results
 
 On November 14, 2026, we installed the official `v0.6.8` DEB and RPM on disposable copies of the Debian 13.7 and Fedora 45 Xfce VMs. With the v0.6.8 daemon running, we changed `LockUsableAreaDisplay` from `true` to `false` and saved it using the OpenTabletDriver CLI. We stopped the daemon, installed `v0.6.8.1` over the old package with APT or DNF, rebuilt the boot image, and rebooted. Both kept the systemd user service enabled and used the tested Xfce login entry.
 
 The settings file was byte-for-byte unchanged immediately after both package upgrades. After manual LightDM sign-in, the daemon started automatically on both VMs. Both reported `0.6.8.1`, and a settings export from the running daemon still had `LockUsableAreaDisplay=false`. The exported settings matched the previous values apart from the revision field. [Official v0.6.8 release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8) · [Official v0.6.8.1 release](https://github.com/OpenTabletDriver/OpenTabletDriver/releases/tag/v0.6.8.1)
+
+For the rollback, we made disposable copies of the upgraded VMs. With the `v0.6.8.1` daemon running, we changed `LockUsableAreaTablet` from `true` to `false` and saved it as a `v0.6.8.1` settings file. We stopped the daemon, installed the older DEB with APT's `--allow-downgrades` or the older RPM with DNF's `downgrade`, rebuilt the boot image, and rebooted. Both downgrades left the settings file byte-for-byte unchanged. After manual LightDM sign-in, the enabled daemon started automatically via the Xfce login entry and reported `v0.6.8`. An export from the running daemon matched the saved settings apart from the revision field, including `LockUsableAreaTablet=false`. The test used global settings with no attached tablet or tablet-specific profiles.
 
 ### Tested package hashes
 
