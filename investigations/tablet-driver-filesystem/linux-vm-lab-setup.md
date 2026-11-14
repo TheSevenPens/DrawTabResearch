@@ -77,13 +77,23 @@ The lab used LightDM and Xfce inside Debian. On the CachyOS desktop, Firefox ser
 
 [Debian Xfce desktop package](https://packages.debian.org/trixie/task-xfce-desktop) · [QEMU display options](https://www.qemu.org/docs/master/system/invocation.html) · [QEMU monitor commands](https://www.qemu.org/docs/master/system/monitor.html) · [noVNC documentation](https://novnc.com/noVNC/)
 
-## Tailscale for a future setup
+## Tailscale for future lab setups
 
-Tailscale could simplify reaching the host from other networks. Enroll both Windows and CachyOS on the same private Tailscale network and authorize access from the Windows device to the lab host. That would replace dependence on the current LAN addresses and the UFW rule tied to the Windows LAN IP.
+Use Tailscale for remote access in future lab setups. Enroll the Windows control machine and the CachyOS host in the same private Tailscale network, then authorize access to the lab host. This avoids coordinating LAN addresses and maintaining a UFW rule tied to the Windows machine's LAN IP.
 
-- **OpenSSH over Tailscale** would reuse the working account, client key, and host verification. Allow access through the host firewall on the Tailscale interface if needed.
-- **Tailscale SSH** could also replace manual user-key distribution. It requires enabling Tailscale SSH on CachyOS and granting the intended user access to the `tablet-lab` account in the Tailscale policy. A policy that requires interactive reauthentication can interrupt unattended jobs.
+- **OpenSSH over Tailscale** can reuse the working account, client key, and host verification. Allow access through the host firewall on the Tailscale interface if needed.
+- **Tailscale SSH** can simplify setup further by handling SSH authentication through Tailscale policy. Enable it on CachyOS and grant the intended user access to the `tablet-lab` account. Verify unattended login before scheduling overnight tests since interactive reauthentication can interrupt jobs.
 
-The host still needs to be awake and configured for KVM, and Debian provisioning and evidence capture follow the same steps. The first lab used LAN OpenSSH. Tailscale is a future option.
+The first lab used LAN OpenSSH. Tailscale is planned for the next setup and has yet to be tested in this lab.
 
 [Tailscale SSH](https://tailscale.com/docs/features/tailscale-ssh) · [OpenSSH over Tailscale](https://tailscale.com/docs/reference/ssh-over-tailscale)
+
+## RAM-backed VM disks for future tests
+
+The CachyOS host had 62 GiB of RAM and a `tmpfs` mounted at `/dev/shm` with a 32 GiB limit when measured. For repeatable driver tests, keep the prepared base images on the SSD and create each run's writable QCOW2 overlay in a private directory under `/dev/shm`. QEMU reads existing blocks from the base and writes changes to the overlay. Most overlays from the Linux driver removal tests used about 140–270 MiB each on disk. A RAM-backed overlay reduces SSD writes from the guest. Its size grows with the writes, and the running guest needs its own memory as well.
+
+Store logs and other evidence under `~/vm-lab/` before discarding the overlay. The overlay survives a guest reboot while the host remains up. Its contents disappear when the host reboots or the filesystem is unmounted.
+
+To measure whether RAM storage speeds up a fresh OS install, run one VM at a time and compare the same installer and VM settings against an SSD-backed run. Allow extra space for writes during installation and updates. The existing host images occupy about 1.6 GiB for Debian, 2.1 GiB for Fedora, 15.3 GiB for EndeavourOS, and 8.4 GiB for CachyOS. These are observed sizes and can differ from peak usage during an install. RAM-backed runs and install speed have yet to be tested.
+
+[Linux tmpfs documentation](https://docs.kernel.org/filesystems/tmpfs.html) · [QEMU backing files](https://qemu.readthedocs.io/en/master/tools/qemu-img.html)

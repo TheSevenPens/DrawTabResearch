@@ -9,6 +9,7 @@ The platform analyses summarize the sampled builds, their filesystem paths, and 
 - [Windows installer analysis](windows-installer-analysis.md)
 - [macOS installer analysis](macos-installer-analysis.md)
 - [Linux installer analysis](linux-installer-analysis.md)
+- [Install OpenTabletDriver on Linux](linux-opentabletdriver-install-guide.md)
 - [Linux VM lab setup](linux-vm-lab-setup.md)
 - [Multi-driver installation analysis](multi-driver-installation-analysis.md)
 
