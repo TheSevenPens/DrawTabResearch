@@ -1,0 +1,26 @@
+# Methodology: U.S. drawing tablet sales
+
+## Finding and verifying offers
+
+1. Search Parka Blogs and Teoh on Tech for dated deal roundups by brand, event and year. Use Parka's model-by-model tables and exact cited amounts. Follow the linked seller or affiliate destination to establish the U.S. store, currency, model and variant. If the affiliate slug contradicts the stated item, retain the flagged observation for reference but exclude it from statistics. Use the post or video date as the observation date, not an inferred campaign start.
+2. Search Brad Colbow's deal roundups and Teoh's videos for corroboration. Use a timestamped product-page frame or individually quoted amount that can be tied to a model/variant and U.S. seller; compare with a dated manufacturer, retailer or editorial listing where possible. Leave unconfirmed amounts blank rather than translating a verbal “up to” claim into a unit price. Preserve timestamped URLs and evidence notes where available.
+3. Look for dated U.S. brand announcements and promotion landing pages from Wacom, Huion and XPPen. Use archived campaign HTML or contemporaneous versions where a reused URL now shows a later sale. Read the dated copy or price table, not a generic title, stale template dates, an undated savings banner, or the current price on an affiliate link. Check the product variant, seller, scope and date against a second source if they conflict. Treat public archived marketing emails and dated third-party reports as additional evidence; flag customer-targeted or conditional terms.
+4. Use official Amazon event announcements for Prime Day and fall-event dates. Those are platform windows, not proof of the dates of a particular brand or seller's offer. Keep manufacturer-direct, Amazon and other retail campaigns distinct. Record both start and end only when the source supplies them. For calendar-day duration when both are known, use `(end - start).days + 1`; keep an end-only deal, single-day observation or unknown start distinct from a measured span.
+5. Record exact model or bundle, model code when available, market, seller, currency, prices, price-reference basis, source URL, and notes. A crossed-out price or seller list is not automatically launch MSRP. Don't compare different generations, resolutions, bundles or stand options as the same SKU.
+
+## Consolidation
+
+The JSON arrays are the post-consolidation records used in the workbook; this folder does not attempt to reproduce the original search from uncollected or unavailable raw excerpts.
+
+- Normalize brand names, market and seller spellings before grouping. Assign seasons from event text and date, distinguishing a midyear Prime event from October, and keeping generic pre-October markdowns separate from named fall events.
+- Group campaign candidates by brand, season, year, market, seller, exact stated start and end, plus normalized label for uncategorized campaigns or observation date if no dates are stated. Repeated brand/seller windows are not cumulative days on sale.
+- Deduplicate offer quotes in two passes. The quote identity is brand, market, seller, canonical exact model/variant, sale price and reference price. First collapse duplicate observations of that quote from the same URL and date/year. Then consolidate matching quotes within the same season/year and campaign phase (early, wave/preview, or main); retain observation date for uncategorized and launch/coupon offers. Keep distinct quotes across sellers, years, seasons, phases or price pairs.
+- Prefer manufacturer and retailer evidence over press releases and public archived brand email, then creator and editorial/archive evidence. For offers, prefer explicit launch-MSRP basis, a stated reference basis and a specific model code in otherwise tied evidence. Keep a distinct alternate source URL where available. Model codes and reviewed aliases disambiguate families; the campaign label and offer event are descriptive and do not form a normalized foreign key.
+
+## Analysis and limitations
+
+Run `python3 analyze-offers.py` in this folder (Python standard library only). The script applies the published post-consolidation selection and checks it agrees with each row's saved `summary_sample` flag. The first screen is a numeric sale quote for a U.S. pen tablet or pen display from Wacom, Huion or XPPen (495 of 540 rows). Of those, 460 have positive savings with both prices and no flagged inconsistent affiliate slug. Standalone devices, smart notebooks, unclassified items, missing/nonpositive price pairs and non-discounts are excluded from the discount distribution.
+
+Calculate percent off as `(1 - sale_price_usd / reference_price_usd) * 100`, without pre-rounding. Group by brand and season; “outside Black Friday” means all qualifying records not classified Black Friday/Cyber. Use median and inclusive quartiles, rounding published statistics to one decimal. The minimum and maximum describe the observed sample, not bounds on future offers.
+
+This is a convenience sample of advertised prices, not transactions or a random/matched-SKU sample. It omits sales tax, shipping and membership costs, and may favor better-preserved events, brands and listings. A documented campaign doesn't establish how long any one offer lasted. Coverage supports recurring shopping windows, not a fixed number of annual sales per SKU.
